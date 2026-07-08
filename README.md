@@ -15,6 +15,7 @@ This repo is a **ready-to-run dbt project**: the project config is wired up and 
 ├── dbt_project.yml              <- ready to run: staging = view, marts = table
 ├── packages.yml                 <- TODO stub: declare dbt_utils (Task 5)
 ├── profiles.yml.example         <- connection template: copy to profiles.yml
+├── .env.example                 <- env var template: copy to .env, fill in, then source it
 ├── macros/
 │   └── safe_divide.sql          <- TODO stub: implement the macro
 ├── models/
@@ -46,14 +47,15 @@ cp profiles.yml.example profiles.yml
 # edit profiles.yml: replace <your_name> so schema reads dev_<your_name>
 ```
 
-2. Export the connection env vars (values are in the class vault; ask your mentor if you are missing them):
+2. Set the connection env vars (values are in the class vault; ask your mentor if you are missing them). Copy the template, fill in the real values, and load them into your shell:
 
 ```bash
-export PG_HOST=...
-export PG_USER=...
-export PG_PASSWORD=...
-export PG_DBNAME=postgres
+cp .env.example .env
+# edit .env: fill in PG_HOST, PG_USER, PG_PASSWORD (PG_DBNAME stays postgres)
+source .env
 ```
+
+`.env` is git-ignored, so your password stays out of Git. Run `source .env` again in any new terminal before running dbt.
 
 3. Verify: `dbt debug` must end with `All checks passed!`.
 

@@ -9,8 +9,10 @@ nyc_taxi_borough_daily:
       password: "{{ env_var('PG_PASSWORD') }}"
       dbname: "{{ env_var('PG_DBNAME', 'postgres') }}"
       schema: "dev_<your_name>"   # TODO: replace <your_name> with your first name (the schema you already own)
+      sslmode: require            # Azure Database for PostgreSQL requires an encrypted connection
       threads: 1
 
 # Copy this file to profiles.yml (same directory), fill in your name, and ensure
 # PG_HOST, PG_USER, PG_PASSWORD, and PG_DBNAME are set in your environment.
+# The quickest way to set them: cp .env.example .env, fill in .env, then run: source .env
 # profiles.yml is git-ignored — never commit it with a real password.
