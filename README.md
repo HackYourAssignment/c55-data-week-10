@@ -51,7 +51,7 @@ cp profiles.yml.example profiles.yml
 
 ```bash
 cp .env.example .env
-# edit .env: fill in PG_HOST, PG_USER, PG_PASSWORD (PG_DBNAME stays postgres)
+# edit .env: fill in PG_HOST, PG_USER, PG_PASSWORD (PG_DBNAME stays team1)
 source .env
 ```
 
