@@ -7,7 +7,7 @@ nyc_taxi_borough_daily:
       port: 5432
       user: "{{ env_var('PG_USER') }}"
       password: "{{ env_var('PG_PASSWORD') }}"
-      dbname: "{{ env_var('PG_DBNAME', 'postgres') }}"
+      dbname: "{{ env_var('PG_DBNAME', 'team1') }}"
       schema: "dev_<your_name>"   # TODO: replace <your_name> with your first name (the schema you already own)
       sslmode: require            # Azure Database for PostgreSQL requires an encrypted connection
       threads: 1
