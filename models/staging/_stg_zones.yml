@@ -2,11 +2,15 @@ version: 2
 
 models:
   - name: stg_zones
-    description: "TODO: state the grain and what source this reads from"
+    description: One row per TLC taxi zone from nyc_taxi.raw_zones, used as the borough lookup for pickup_location_id.
     columns:
       - name: location_id
-        description: "TODO"
-        # TODO: Task 5 -- this column is the join key. Which two generic tests
-        # guarantee a clean one-to-many join from stg_trips?
+        description: TLC taxi zone identifier; primary key of the zone lookup and join target for stg_trips.pickup_location_id.
+        tests:
+          - unique
+          - not_null
       - name: borough
-        description: "TODO"
+        description: Borough or special TLC borough label for the zone, including Manhattan, Brooklyn, Queens, Bronx, Staten Island, EWR, Unknown, and dirty NaN labels.
+        tests:
+          - not_null:
+              severity: warn

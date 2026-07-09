@@ -162,3 +162,11 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
+
+# Local secrets and dbt generated files
+.env
+profiles.yml
+dbt_packages/
+target/
+logs/
+grader_output.txt

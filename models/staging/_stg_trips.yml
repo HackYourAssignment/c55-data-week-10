@@ -2,19 +2,28 @@ version: 2
 
 models:
   - name: stg_trips
-    description: "TODO: state the grain (one row per ___) and what source this reads from"
+    description: One row per cleaned NYC green taxi trip, read from nyc_taxi.raw_trips. Rows with missing pickup_location_id or negative fare_amount are removed before aggregation.
     columns:
       - name: pickup_datetime
-        description: "TODO"
-        # TODO: Task 5 -- add not_null tests on every column used as a join or
-        # group-by key. See the chapter's dbt Tests section for the syntax.
+        description: Wall-clock timestamp when the trip started; used to derive pickup_date in the mart.
+        tests:
+          - not_null
       - name: pickup_location_id
-        description: "TODO"
+        description: TLC pickup zone identifier; join key to stg_zones.location_id.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_zones')
+              field: location_id
+              severity: warn   
       - name: fare_amount
-        description: "TODO"
+        description: Metered trip fare in USD before tip; negative fares are filtered out in this staging model.
+        tests:
+          - not_null
       - name: tip_amount
-        description: "TODO"
+        description: Tip amount in USD recorded for the trip.
       - name: trip_distance
-        description: "TODO"
+        description: Trip distance in miles recorded for the trip. 
       - name: tip_pct
-        description: "TODO"
+        description: Ratio tip_amount / fare_amount; NULL when fare_amount is zero.
+
