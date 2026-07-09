@@ -15,5 +15,10 @@
 
 -- TODO: write the SELECT here.
 -- Query {{ ref('fct_daily_borough_stats') }} and return rows where avg_tip_pct > 1.
-SELECT NULL AS pickup_borough, NULL AS pickup_date, NULL AS avg_tip_pct
-WHERE FALSE  -- TODO: replace with the real query
+{{ config(severity='warn') }}
+SELECT 
+    pickup_borough,
+    pickup_date,
+    avg_tip_pct
+FROM {{ ref('fct_daily_borough_stats') }}
+WHERE avg_tip_pct > 1
