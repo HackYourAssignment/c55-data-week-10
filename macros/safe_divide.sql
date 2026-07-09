@@ -2,9 +2,12 @@
 -- Returns numerator / denominator, or NULL when denominator is 0 or NULL.
 -- Use for tip_pct = tip_amount / fare_amount and similar ratio columns.
 
+
+
+
 {% macro safe_divide(numerator, denominator) %}
-    -- TODO: implement the macro body.
-    -- Use NULLIF(denominator, 0) to avoid division-by-zero errors.
-    -- Return only the SQL expression (no SELECT, no semicolon).
-    NULL
+    {{ numerator }} / NULLIF({{ denominator }}, 0)
+    {#- NULLIF(x, 0) returns NULL when the denominator is 0, and Postgres propagates
+        NULL through division, so the whole expression becomes NULL instead of raising
+        a division-by-zero error. Standard dbt pattern for any ratio column. -#}
 {% endmacro %}

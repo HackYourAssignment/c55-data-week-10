@@ -4,31 +4,33 @@ Document one place you used an LLM during this assignment.
 
 ## The problem
 
-<!-- TODO: describe the specific problem you asked an LLM about.
-     Example: "My safe_divide macro compiled but returned NULL for all rows even
-     when tip_amount and fare_amount were both non-zero." -->
-
-TODO
+when i run dbt run i got an error in my models/stg_trips.sql that was originally my sql error then a database problem
 
 ## The prompt
 
-<!-- TODO: paste the exact prompt you sent to the LLM. -->
-
-TODO
+why am i getting this error and how to solve
+13:00:05  
+13:00:05 Completed with 1 error, 0 partial successes, and 0 warnings:
+13:00:05  
+13:00:05 Failure in model stg_trips (models\staging\stg_trips.sql)
+13:00:05 Database Error in model stg_trips (models\staging\stg_trips.sql)
+must be owner of view stg_trips
+compiled code at target\run\nyc_taxi_borough_daily\models\staging\stg_trips.sql
+13:00:05  
+13:00:05 compiled code at target\compiled\nyc_taxi_borough_daily\models\staging\stg_trips.sql
+13:00:05  
+13:00:05 Done. PASS=1 WARN=0 ERROR=1 SKIP=1 NO-OP=0 TOTAL=3
 
 ## The response
 
-<!-- TODO: summarise or paste what the LLM returned. -->
-
-TODO
+This is a permissions/ownership conflict, not a bug in your SQL.
+How to fix it — a few options depending on your access level:
+Option 1: Drop the existing view yourself (if you have drop privileges)
+Connect to the database (via psql, DBeaver, pgAdmin, etc.) and run:
 
 ## Reflection
 
-<!-- TODO: what did you change, keep, or discard after reviewing the LLM's answer?
-     Be specific: "I kept the NULLIF suggestion but changed the column alias from
-     'ratio' to 'tip_pct' to match the assignment schema." -->
-
-TODO
+i dropped my previous view of stg_strips and run dbt then it connected and worked. The error occured as there was an already existing table
 
 ---
 

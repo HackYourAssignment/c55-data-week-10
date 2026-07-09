@@ -49,10 +49,10 @@ cp profiles.yml.example profiles.yml
 2. Export the connection env vars (values are in the class vault; ask your mentor if you are missing them):
 
 ```bash
-export PG_HOST=...
-export PG_USER=...
-export PG_PASSWORD=...
-export PG_DBNAME=postgres
+export PG_HOST=hyf-data-pg.postgres.database.azure.com
+export PG_USER=hannahwn
+export PG_PASSWORD=HhRHmt469pEm3Ou0
+export PG_DBNAME=team1
 ```
 
 3. Verify: `dbt debug` must end with `All checks passed!`.
