@@ -2,12 +2,17 @@ version: 2
 
 models:
   - name: fct_daily_borough_stats
+
     description: >
 
       one row per pickup_borough and pickup_date,the source lineage(built from stg_trips
       and stg_zones), and atleast one known caveat(we drop rows in staging where pickup location
       id is null))
-
+    test:
+      dbt_utils.unique_combination_of_columns:
+        combination_of_columns:
+          - pickup_borough
+          - pickup_date
     columns:
       - name: pickup_borough
         description: groups trips by the pickup_borough, which is derived from the pickup_location_id and the stg_zones table
