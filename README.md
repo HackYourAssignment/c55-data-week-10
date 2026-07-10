@@ -50,9 +50,9 @@ cp profiles.yml.example profiles.yml
 
 ```bash
 export PG_HOST=hyf-data-pg.postgres.database.azure.com
-export PG_USER=hannahwn
-export PG_PASSWORD=HhRHmt469pEm3Ou0
-export PG_DBNAME=team1
+export PG_USER=....
+export PG_PASSWORD=.....
+export PG_DBNAME=......
 ```
 
 3. Verify: `dbt debug` must end with `All checks passed!`.
