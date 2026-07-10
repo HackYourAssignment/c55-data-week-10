@@ -2,23 +2,27 @@ version: 2
 
 models:
   - name: fct_daily_borough_stats
-    description: >
-      TODO: state the grain (one row per ___), the source lineage
-      (built from ___ and ___), and at least one known caveat
-      (e.g. rows dropped in staging, any WARN-severity tests).
-    # TODO: Task 5 -- add the compound uniqueness test on the mart's primary
-    # key (pickup_borough, pickup_date). You need the dbt_utils package for
-    # this: declare it in packages.yml and run `dbt deps` first.
+    description: "Daily borough-level mart for NYC Green Taxi trips. The grain is one row per pickup borough and pickup date. The model is built from stg_trips joined to stg_zones using pickup_location_id. Trips with null pickup location ids or negative fares are removed in staging, and trips with pickup location ids that do not match a known TLC zone are dropped by the inner join. High average tip percentages are checked by a warning-level singular test because unusual tips can occur in low-volume borough/date combinations."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - pickup_borough
+              - pickup_date
     columns:
       - name: pickup_borough
-        description: "TODO: explain what this column contains and where it comes from"
+        description: "Borough label of the TLC pickup zone. This comes from stg_zones.borough and can include NYC boroughs as well as labels such as EWR, Unknown, or NaN."
+        tests:
+          - not_null
       - name: pickup_date
-        description: "TODO: explain units and how it is derived"
+        description: "Calendar date of the trip pickup, derived from pickup_datetime. Unit: date."
+        tests:
+          - not_null
       - name: trip_count
-        description: "TODO: explain what is counted (unit: number of trips)"
+        description: "Number of taxi trips picked up in the borough on the date. Unit: trips."
       - name: total_fare
-        description: "TODO: explain units (USD) and what fare_amount represents"
+        description: "Sum of fare_amount for trips picked up in the borough on the date. Unit: US dollars."
       - name: avg_tip_pct
-        description: "TODO: explain the ratio (tip_amount / fare_amount)"
+        description: "Average of tip_amount divided by fare_amount for trips picked up in the borough on the date. Unit: decimal ratio, where 0.2 means 20%."
       - name: avg_trip_distance
-        description: "TODO: explain units (miles, from TLC source data)"
+        description: "Average trip_distance for trips picked up in the borough on the date. Unit: miles."
