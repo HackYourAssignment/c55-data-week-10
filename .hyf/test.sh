@@ -102,7 +102,7 @@ else
 fi
 
 if [[ -f "$REPO_ROOT/profiles.yml" ]]; then
-  fail "profiles.yml is committed -- BLOCKER: run: git rm --cached profiles.yml"
+  blocker "profiles.yml is committed -- run: git rm --cached profiles.yml, then rotate the Postgres password since it was pushed"
 else
   ((l2 += 5)); pass "profiles.yml not committed (correctly git-ignored)"
 fi
