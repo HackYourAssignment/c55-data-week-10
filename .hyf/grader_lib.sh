@@ -3,15 +3,23 @@
 # Source this at the top of test.sh:
 #   source "$(dirname "$0")/grader_lib.sh"
 #
-# Provides: pass(), fail(), warn(), print_results(), write_score(),
+# Provides: pass(), fail(), warn(), blocker(), print_results(), write_score(),
 # and a set of common static-analysis checks derived from recurring
 # PR review patterns across cohort c55.
+#
+# blocker(): use for leaked-secret findings (a committed profiles.yml/.env,
+# a hardcoded password/connection string). It behaves like fail() for the
+# printed report, but also flips a flag that forces write_score() to report
+# pass=false regardless of the earned point total -- a leaked secret must
+# be fixed before the PR can pass, it cannot be "pointed around."
 
 _grader_details=()
+_grader_blocker=false
 
 pass() { _grader_details+=("✓ PASS  $1"); }
 fail() { _grader_details+=("✗ FAIL  $1"); }
 warn() { _grader_details+=("⚠ WARN  $1"); }
+blocker() { _grader_details+=("🚫 BLOCKER  $1"); _grader_blocker=true; }
 
 print_results() {
   local header="${1:-Autograder Results}"
@@ -28,6 +36,10 @@ write_score() {
   local outfile="${3:-$(dirname "${BASH_SOURCE[0]}")/score.json}"
   local pass_flag="false"
   [[ "$score" -ge "$passing" ]] && pass_flag="true"
+  if [[ "$_grader_blocker" == true ]]; then
+    pass_flag="false"
+    echo "🚫 A blocker was found (leaked secret) -- forcing pass=false regardless of score." >&2
+  fi
   cat > "$outfile" << JSON
 {
   "score": $score,
