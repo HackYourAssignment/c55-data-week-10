@@ -26,13 +26,13 @@ SELECT
     --   total_fare       NUMERIC  - sum(fare_amount)
     --   avg_tip_pct      NUMERIC  - avg(tip_pct)
     --   avg_trip_distance NUMERIC - avg(trip_distance)
-    NULL AS pickup_borough,
-    NULL AS pickup_date,
-    NULL AS trip_count,
-    NULL AS total_fare,
-    NULL AS avg_tip_pct,
-    NULL AS avg_trip_distance
+    z.borough AS pickup_borough,
+    t.pickup_datetime::date AS pickup_date,
+    count(*) AS trip_count,
+    sum(t.fare_amount) AS total_fare,
+    avg(t.tip_pct::numeric) AS avg_tip_pct,
+    avg(t.trip_distance) AS avg_trip_distance
 
 FROM trips t
--- TODO: add JOIN to zones here
--- TODO: add GROUP BY here
+    inner join zones z on t.pickup_location_id = z.location_id
+    GROUP BY pickup_borough, pickup_date

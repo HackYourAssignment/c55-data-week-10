@@ -3,22 +3,29 @@ version: 2
 models:
   - name: fct_daily_borough_stats
     description: >
-      TODO: state the grain (one row per ___), the source lineage
-      (built from ___ and ___), and at least one known caveat
-      (e.g. rows dropped in staging, any WARN-severity tests).
+      The grain of this mart is one row per (pickup_borough, pickup_date). 
+      It is built from stg_trips and stg_zones. 
+      Note: Trips with invalid or unmatched zone IDs (such as location 999) 
+      were dropped during the staging/join process using an INNER JOIN, 
+      ensuring pickup_borough is never NULL.
     # TODO: Task 5 -- add the compound uniqueness test on the mart's primary
     # key (pickup_borough, pickup_date). You need the dbt_utils package for
     # this: declare it in packages.yml and run `dbt deps` first.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - pickup_borough
+            - pickup_date
     columns:
       - name: pickup_borough
-        description: "TODO: explain what this column contains and where it comes from"
+        description: "It is the name of the NYC borough where the trip started, It comes from the stg_zones table."
       - name: pickup_date
-        description: "TODO: explain units and how it is derived"
+        description: "It is the date of the trip, derived from the pickup_datetime column in stg_trips which is converted to date."
       - name: trip_count
-        description: "TODO: explain what is counted (unit: number of trips)"
+        description: "It is the total number of trips per borough per day."
       - name: total_fare
-        description: "TODO: explain units (USD) and what fare_amount represents"
+        description: "It is the sum of all fare_amount values for trips per borough per day in USD."
       - name: avg_tip_pct
-        description: "TODO: explain the ratio (tip_amount / fare_amount)"
+        description: "It is the average tip percentage,calculated as (tip_amount / fare_amount) * 100."
       - name: avg_trip_distance
-        description: "TODO: explain units (miles, from TLC source data)"
+        description: "The average distance traveled per trip, measured in miles from the source TLC data."
