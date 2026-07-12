@@ -1,18 +1,27 @@
 # Business Question Answers
 
-Queries run against `dev_<your_name>.fct_daily_borough_stats`.
+Queries run against `dev_pavel_tisner.fct_daily_borough_stats`.
 
 ## Q1: Highest total `total_fare` across the whole loaded dataset
 
 **SQL:**
 
 ```sql
--- TODO: query fct_daily_borough_stats grouped by pickup_borough, sum total_fare, order DESC
+select
+    pickup_borough,
+    sum(total_fare) as total_fare_across_dataset
+from dev_pavel_tisner.fct_daily_borough_stats
+group by pickup_borough
+order by total_fare_across_dataset desc
+limit 1;
 ```
 
-**Result:** TODO
+**Result:** 
+| pickup_borough | total_fare_across_dataset |
+| --- | ---: |
+| Manhattan | 493,955.620... |
 
-**Interpretation:** TODO (one sentence)
+**Interpretation:** Manhattan had the highest total fare across the loaded dataset, meaning it generated the most fare revenue among pickup boroughs.
 
 ---
 
@@ -21,12 +30,21 @@ Queries run against `dev_<your_name>.fct_daily_borough_stats`.
 **SQL:**
 
 ```sql
--- TODO: query fct_daily_borough_stats grouped by pickup_date, sum trip_count, order DESC LIMIT 1
+select
+    pickup_date,
+    sum(trip_count) as overall_trip_count
+from dev_pavel_tisner.fct_daily_borough_stats
+group by pickup_date
+order by overall_trip_count desc
+limit 1;
 ```
 
-**Result:** TODO
+**Result:** 
+| pickup_date | overall_trip_count |
+| --- | ---: |
+| 2024-01-17 | 2,221 |
 
-**Interpretation:** TODO (one sentence)
+**Interpretation:** January 17, 2024 had the highest overall trip count in the loaded dataset.
 
 ---
 
@@ -35,12 +53,25 @@ Queries run against `dev_<your_name>.fct_daily_borough_stats`.
 **SQL:**
 
 ```sql
--- TODO: query fct_daily_borough_stats order by avg_tip_pct DESC LIMIT 5
+select
+    pickup_borough,
+    pickup_date,
+    avg_tip_pct
+from dev_pavel_tisner.fct_daily_borough_stats
+order by avg_tip_pct desc
+limit 5;
 ```
 
-**Result:** TODO
+**Result:** 
+| pickup_borough | pickup_date | avg_tip_pct |
+| --- | --- | ---: |
+| Unknown | 2024-01-30 | 2.500... |
+| Unknown | 2024-01-07 | 1.340... |
+| Unknown | 2024-01-11 | 1.104... |
+| Unknown | 2024-01-16 | 1.000... |
+| Unknown | 2024-01-18 | 0.611... |
 
-**Interpretation:** TODO — note whether any avg_tip_pct > 1 rows appear and what causes them
+**Interpretation:** The highest average tip percentage was for the `Unknown` borough on 2024-01-30, at about 2.5, meaning tips averaged about 250% of fare amount for that borough/date combination. The `avg_tip_pct > 1` rows are unusual but expected warning-level findings because low-volume or dirty borough buckets can be dominated by a few high-tip trips.
 
 ---
 
@@ -49,9 +80,19 @@ Queries run against `dev_<your_name>.fct_daily_borough_stats`.
 **SQL:**
 
 ```sql
--- TODO: use percentile_cont(0.5) WITHIN GROUP (ORDER BY trip_count) filtered by borough
+select
+    pickup_borough,
+    percentile_cont(0.5) within group (order by trip_count) as median_daily_trip_count
+from dev_pavel_tisner.fct_daily_borough_stats
+where pickup_borough in ('Manhattan', 'Brooklyn')
+group by pickup_borough
+order by pickup_borough;
 ```
 
-**Result:** TODO
+**Result:** 
+| pickup_borough | median_daily_trip_count |
+| --- | ---: |
+| Brooklyn | 248.0 |
+| Manhattan | 1,169.5 |
 
-**Interpretation:** TODO (one sentence on the ratio)
+**Interpretation:** Manhattan’s median daily trip count was much higher than Brooklyn’s, at about 4.7 times Brooklyn’s median daily volume.
