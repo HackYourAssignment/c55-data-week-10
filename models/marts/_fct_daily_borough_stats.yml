@@ -3,22 +3,36 @@ version: 2
 models:
   - name: fct_daily_borough_stats
     description: >
-      TODO: state the grain (one row per ___), the source lineage
-      (built from ___ and ___), and at least one known caveat
-      (e.g. rows dropped in staging, any WARN-severity tests).
+      Daily borough-level taxi statistics with a grain of one row per
+      (pickup_borough, pickup_date). 
+      Built from stg_trips and stg_zones.
+      Trips with missing or invalid pickup locations are removed during staging
+      or excluded by the INNER JOIN. 
+      The avg_tip_pct warning test may return some rows where 
+      tips are higher than the fare amount.
+    
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - pickup_borough
+            - pickup_date
     # TODO: Task 5 -- add the compound uniqueness test on the mart's primary
     # key (pickup_borough, pickup_date). You need the dbt_utils package for
     # this: declare it in packages.yml and run `dbt deps` first.
     columns:
       - name: pickup_borough
-        description: "TODO: explain what this column contains and where it comes from"
+        description: "The TLC borough where trips were picked up, sourced from stg_zones.borough"
+        tests:
+          - not_null
       - name: pickup_date
-        description: "TODO: explain units and how it is derived"
+        description: "The calendar date of the trip pickup, derived from pickup_datetime."
+        tests:
+          - not_null
       - name: trip_count
-        description: "TODO: explain what is counted (unit: number of trips)"
+        description: "The number of taxi trips picked up in the borough on that dat."
       - name: total_fare
-        description: "TODO: explain units (USD) and what fare_amount represents"
+        description: "The total fare amount collected in US dollars, calculated as the sum of fare_amount"
       - name: avg_tip_pct
-        description: "TODO: explain the ratio (tip_amount / fare_amount)"
+        description: "The average tipping ratio calculated as tip_amount divided by fare_amount."
       - name: avg_trip_distance
-        description: "TODO: explain units (miles, from TLC source data)"
+        description: "The average trip distance in miles based on the TLC trip_distance field"

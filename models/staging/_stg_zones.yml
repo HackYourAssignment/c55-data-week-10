@@ -2,11 +2,15 @@ version: 2
 
 models:
   - name: stg_zones
-    description: "TODO: state the grain and what source this reads from"
+    description: "One row per TLC taxi zone from the raw_zones source"
     columns:
       - name: location_id
-        description: "TODO"
+        description: "Unique identifier for each TLC taxi zone."
+        tests:
+          - not_null
+          - unique
+
         # TODO: Task 5 -- this column is the join key. Which two generic tests
         # guarantee a clean one-to-many join from stg_trips?
       - name: borough
-        description: "TODO"
+        description: "Borough that the taxi zone belongs to."

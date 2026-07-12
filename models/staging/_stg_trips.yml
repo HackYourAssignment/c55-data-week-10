@@ -2,19 +2,23 @@ version: 2
 
 models:
   - name: stg_trips
-    description: "TODO: state the grain (one row per ___) and what source this reads from"
+    description: "One row per taxi trip from the raw_trips source after basic cleaning and filtering."
     columns:
       - name: pickup_datetime
-        description: "TODO"
+        description: "Timestamp when the trip started"
+        tests:
+          - not_null
         # TODO: Task 5 -- add not_null tests on every column used as a join or
         # group-by key. See the chapter's dbt Tests section for the syntax.
       - name: pickup_location_id
-        description: "TODO"
+        description: "TLC location ID where the trip was picked up."
+        tests:
+          - not_null
       - name: fare_amount
-        description: "TODO"
+        description: "Fare charged for the trip in US dollars"
       - name: tip_amount
-        description: "TODO"
+        description: "Tip paid by the passenger in US dollars"
       - name: trip_distance
-        description: "TODO"
+        description: "Distance travelled during the trip in miles"
       - name: tip_pct
-        description: "TODO"
+        description: "Tip as a percentage of the fare amount"

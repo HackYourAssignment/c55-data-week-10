@@ -2,6 +2,7 @@
 -- Grain: one row per (pickup_borough, pickup_date).
 -- Used to answer: trip volume, revenue, tipping behaviour, and distance profile
 -- per borough per day for January 2024.
+{{ config(materialized='table') }}
 
 WITH trips AS (
     SELECT *
@@ -26,13 +27,27 @@ SELECT
     --   total_fare       NUMERIC  - sum(fare_amount)
     --   avg_tip_pct      NUMERIC  - avg(tip_pct)
     --   avg_trip_distance NUMERIC - avg(trip_distance)
-    NULL AS pickup_borough,
-    NULL AS pickup_date,
-    NULL AS trip_count,
-    NULL AS total_fare,
-    NULL AS avg_tip_pct,
-    NULL AS avg_trip_distance
+    z.borough AS pickup_borough,
+
+    t.pickup_datetime::date AS pickup_date,
+
+    count(*) AS trip_count,
+
+    sum(t.fare_amount) AS total_fare,
+
+    avg(t.tip_pct) AS avg_tip_pct,
+
+    avg(t.trip_distance) AS avg_trip_distance
+
 
 FROM trips t
 -- TODO: add JOIN to zones here
+INNER JOIN zones z
+
+    ON t.pickup_location_id = z.location_id
 -- TODO: add GROUP BY here
+GROUP BY
+
+    z.borough,
+
+    t.pickup_datetime::date

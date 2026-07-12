@@ -12,8 +12,15 @@
 -- unique_combination primary-key tests, which you want to stay at ERROR.
 --
 -- The test passes (no WARN) when zero rows are returned; any returned rows are flagged.
+{{ config(severity='warn') }}
 
 -- TODO: write the SELECT here.
 -- Query {{ ref('fct_daily_borough_stats') }} and return rows where avg_tip_pct > 1.
-SELECT NULL AS pickup_borough, NULL AS pickup_date, NULL AS avg_tip_pct
-WHERE FALSE  -- TODO: replace with the real query
+SELECT
+    pickup_borough,
+    pickup_date,
+    avg_tip_pct
+
+FROM {{ ref('fct_daily_borough_stats') }}
+
+WHERE avg_tip_pct > 1
