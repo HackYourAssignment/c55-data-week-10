@@ -63,25 +63,25 @@ for f in "${required_files[@]}"; do
     pass "found $f"
   else
     fail "missing required file: $f"
-    ((missing += 1))
+    missing=$((missing + 1))
   fi
 done
 if ls "$REPO_ROOT/tests/"*.sql &>/dev/null 2>&1; then
   pass "found singular test in tests/"
 else
   fail "no .sql file found in tests/ -- add at least one singular test"
-  ((missing += 1))
+  missing=$((missing + 1))
 fi
 if [[ -s "$REPO_ROOT/docs/lineage.png" ]]; then
   pass "found docs/lineage.png"
 else
   fail "docs/lineage.png missing -- run dbt docs generate + serve and screenshot the lineage graph"
-  ((missing += 1))
+  missing=$((missing + 1))
 fi
 if [[ "$missing" -eq 0 ]]; then
   l1=10
 fi
-((score += l1))
+score=$((score + l1))
 pass "Level 1: required files ($l1/10 pts)"
 
 # ── Level 2 (15 pts): secrets hygiene ───────────────────────────────────────
@@ -90,13 +90,13 @@ gi="$REPO_ROOT/.gitignore"
 ex="$REPO_ROOT/profiles.yml.example"
 
 if [[ -f "$gi" ]] && grep -qE "^profiles\.yml$" "$gi"; then
-  ((l2 += 5)); pass ".gitignore: profiles.yml excluded"
+  l2=$((l2 + 5)); pass ".gitignore: profiles.yml excluded"
 else
   fail ".gitignore must contain 'profiles.yml' on its own line"
 fi
 
 if [[ -f "$ex" ]] && grep -qE "env_var\(" "$ex"; then
-  ((l2 += 5)); pass "profiles.yml.example: uses env_var() -- no hardcoded password"
+  l2=$((l2 + 5)); pass "profiles.yml.example: uses env_var() -- no hardcoded password"
 else
   fail "profiles.yml.example must use env_var('PG_PASSWORD') instead of a hardcoded password"
 fi
@@ -104,9 +104,9 @@ fi
 if [[ -f "$REPO_ROOT/profiles.yml" ]]; then
   blocker "profiles.yml is committed -- run: git rm --cached profiles.yml, then rotate the Postgres password since it was pushed"
 else
-  ((l2 += 5)); pass "profiles.yml not committed (correctly git-ignored)"
+  l2=$((l2 + 5)); pass "profiles.yml not committed (correctly git-ignored)"
 fi
-((score += l2))
+score=$((score + l2))
 pass "Level 2: secrets hygiene ($l2/15 pts)"
 
 # ── Level 3 (20 pts): staging models ────────────────────────────────────────
@@ -115,35 +115,35 @@ st="$REPO_ROOT/models/staging/stg_trips.sql"
 sz="$REPO_ROOT/models/staging/stg_zones.sql"
 
 if file_is_filled "$st" && sqlgrep "\{\{[[:space:]]*source\(" "$st"; then
-  ((l3 += 4)); pass "stg_trips.sql: uses {{ source() }} reference"
+  l3=$((l3 + 4)); pass "stg_trips.sql: uses {{ source() }} reference"
 else
   fail "stg_trips.sql: must use {{ source('nyc_taxi', 'raw_trips') }}"
 fi
 
 if file_is_filled "$st" && sqlgrep "pickup_location_id" "$st" && sqlgrep "IS NOT NULL|NOT NULL" "$st"; then
-  ((l3 += 4)); pass "stg_trips.sql: filters NULL pickup_location_id"
+  l3=$((l3 + 4)); pass "stg_trips.sql: filters NULL pickup_location_id"
 else
   fail "stg_trips.sql: must filter WHERE pickup_location_id IS NOT NULL"
 fi
 
 if file_is_filled "$st" && sqlgrep "fare_amount" "$st" && sqlgrep ">=.*0|> -1" "$st"; then
-  ((l3 += 4)); pass "stg_trips.sql: filters negative fares (fare_amount >= 0)"
+  l3=$((l3 + 4)); pass "stg_trips.sql: filters negative fares (fare_amount >= 0)"
 else
   fail "stg_trips.sql: must filter WHERE fare_amount >= 0"
 fi
 
 if file_is_filled "$st" && sqlgrep "tip_pct|safe_divide" "$st"; then
-  ((l3 += 4)); pass "stg_trips.sql: tip_pct column present"
+  l3=$((l3 + 4)); pass "stg_trips.sql: tip_pct column present"
 else
   fail "stg_trips.sql: tip_pct column missing -- add {{ safe_divide('tip_amount', 'fare_amount') }} AS tip_pct"
 fi
 
 if file_is_filled "$sz" && sqlgrep "\{\{[[:space:]]*source\(" "$sz"; then
-  ((l3 += 4)); pass "stg_zones.sql: uses {{ source() }} and is filled"
+  l3=$((l3 + 4)); pass "stg_zones.sql: uses {{ source() }} and is filled"
 else
   fail "stg_zones.sql: must use {{ source('nyc_taxi', 'raw_zones') }}"
 fi
-((score += l3))
+score=$((score + l3))
 pass "Level 3: staging models ($l3/20 pts)"
 
 # ── Level 4 (20 pts): mart model ─────────────────────────────────────────────
@@ -151,22 +151,22 @@ l4=0
 mart="$REPO_ROOT/models/marts/fct_daily_borough_stats.sql"
 
 if file_is_filled "$mart"; then
-  ((l4 += 2)); pass "fct_daily_borough_stats.sql: file filled"
+  l4=$((l4 + 2)); pass "fct_daily_borough_stats.sql: file filled"
 
   if sqlgrep "\{\{[[:space:]]*ref\('stg_trips'\)" "$mart" && sqlgrep "\{\{[[:space:]]*ref\('stg_zones'\)" "$mart"; then
-    ((l4 += 4)); pass "mart: ref() to both stg_trips and stg_zones"
+    l4=$((l4 + 4)); pass "mart: ref() to both stg_trips and stg_zones"
   else
     fail "mart: must reference both {{ ref('stg_trips') }} and {{ ref('stg_zones') }}"
   fi
 
   if sqlgrep "(INNER|LEFT)?[[:space:]]*JOIN" "$mart"; then
-    ((l4 += 4)); pass "mart: JOIN to zones present"
+    l4=$((l4 + 4)); pass "mart: JOIN to zones present"
   else
     fail "mart: no JOIN -- must join stg_trips to stg_zones on pickup_location_id = location_id"
   fi
 
   if sqlgrep "GROUP[[:space:]]+BY" "$mart"; then
-    ((l4 += 4)); pass "mart: GROUP BY present"
+    l4=$((l4 + 4)); pass "mart: GROUP BY present"
   else
     fail "mart: no GROUP BY -- must aggregate to (pickup_borough, pickup_date) grain"
   fi
@@ -174,20 +174,20 @@ if file_is_filled "$mart"; then
   cols_ok=0
   for col in pickup_borough pickup_date trip_count total_fare avg_tip_pct avg_trip_distance; do
     if sqlgrep "$col" "$mart"; then
-      ((cols_ok += 1))
+      cols_ok=$((cols_ok + 1))
     else
       fail "mart: required output column '$col' not found"
     fi
   done
   if [[ "$cols_ok" -eq 6 ]]; then
-    ((l4 += 6)); pass "mart: all 6 required output columns present"
+    l4=$((l4 + 6)); pass "mart: all 6 required output columns present"
   elif [[ "$cols_ok" -ge 4 ]]; then
-    ((l4 += 3)); warn "mart: $cols_ok/6 required columns present"
+    l4=$((l4 + 3)); warn "mart: $cols_ok/6 required columns present"
   fi
 else
   fail "fct_daily_borough_stats.sql: still contains TODO stubs"
 fi
-((score += l4))
+score=$((score + l4))
 pass "Level 4: mart model ($l4/20 pts)"
 
 # ── Level 5 (15 pts): tests ─────────────────────────────────────────────────
@@ -196,28 +196,28 @@ mart_yml="$REPO_ROOT/models/marts/_fct_daily_borough_stats.yml"
 singular_test=$(ls "$REPO_ROOT/tests/"*.sql 2>/dev/null | head -1 || true)
 
 if [[ -f "$mart_yml" ]] && grep -qiE "unique_combination_of_columns" "$mart_yml"; then
-  ((l5 += 5)); pass "mart YAML: dbt_utils.unique_combination_of_columns test present"
+  l5=$((l5 + 5)); pass "mart YAML: dbt_utils.unique_combination_of_columns test present"
 else
   fail "mart YAML: missing dbt_utils.unique_combination_of_columns on (pickup_borough, pickup_date)"
 fi
 
 stg_yml="$REPO_ROOT/models/staging/_stg_trips.yml"
 if [[ -f "$stg_yml" ]] && grep -qiE "not_null" "$stg_yml"; then
-  ((l5 += 5)); pass "staging YAML: not_null tests present"
+  l5=$((l5 + 5)); pass "staging YAML: not_null tests present"
 else
   fail "staging YAML (_stg_trips.yml): not_null tests missing on key columns"
 fi
 
 if [[ -n "$singular_test" ]] && file_is_filled "$singular_test"; then
   if sqlgrep "\{\{[[:space:]]*ref\('fct_daily_borough_stats'\)" "$singular_test"; then
-    ((l5 += 5)); pass "singular test: filled and references fct_daily_borough_stats"
+    l5=$((l5 + 5)); pass "singular test: filled and references fct_daily_borough_stats"
   else
-    ((l5 += 3)); pass "singular test: filled (does not reference fct_daily_borough_stats -- check)"
+    l5=$((l5 + 3)); pass "singular test: filled (does not reference fct_daily_borough_stats -- check)"
   fi
 else
   fail "singular test: empty or still a TODO stub"
 fi
-((score += l5))
+score=$((score + l5))
 pass "Level 5: tests ($l5/15 pts)"
 
 # ── Level 6 (10 pts): documentation ─────────────────────────────────────────
@@ -226,7 +226,7 @@ mart_yml="$REPO_ROOT/models/marts/_fct_daily_borough_stats.yml"
 
 if [[ -f "$mart_yml" ]] && grep -qiE "grain|one row per" "$mart_yml"; then
   if ! grep -B5 -A5 "grain\|one row per" "$mart_yml" | grep -qiE "TODO"; then
-    ((l6 += 5)); pass "mart YAML: grain stated in model description"
+    l6=$((l6 + 5)); pass "mart YAML: grain stated in model description"
   else
     fail "mart YAML: grain mentioned but description still has TODO -- fill it in"
   fi
@@ -237,14 +237,14 @@ fi
 if [[ -f "$mart_yml" ]]; then
   filled_descs=$(grep "description:" "$mart_yml" | grep -v "TODO" | grep -cvE '^\s*description:\s*("")?\s*$' || true)
   if [[ "$filled_descs" -ge 4 ]]; then
-    ((l6 += 5)); pass "mart YAML: $filled_descs column descriptions filled"
+    l6=$((l6 + 5)); pass "mart YAML: $filled_descs column descriptions filled"
   elif [[ "$filled_descs" -ge 2 ]]; then
-    ((l6 += 3)); warn "mart YAML: only $filled_descs column descriptions filled (target: all 6)"
+    l6=$((l6 + 3)); warn "mart YAML: only $filled_descs column descriptions filled (target: all 6)"
   else
     fail "mart YAML: column descriptions are empty -- explain meaning and units for each column"
   fi
 fi
-((score += l6))
+score=$((score + l6))
 pass "Level 6: documentation ($l6/10 pts)"
 
 # ── Level 7 (10 pts): business answers + AI log ─────────────────────────────
@@ -255,11 +255,11 @@ ai="$REPO_ROOT/AI_ASSIST.md"
 if file_is_filled "$ans"; then
   sql_blocks=$(grep -c "^\`\`\`sql" "$ans" 2>/dev/null || echo 0)
   if [[ "$sql_blocks" -ge 4 ]]; then
-    ((l7 += 5)); pass "reports/answers.md: 4 SQL blocks present and filled"
+    l7=$((l7 + 5)); pass "reports/answers.md: 4 SQL blocks present and filled"
   elif [[ "$sql_blocks" -ge 2 ]]; then
-    ((l7 += 3)); warn "reports/answers.md: $sql_blocks SQL block(s) present (need 4)"
+    l7=$((l7 + 3)); warn "reports/answers.md: $sql_blocks SQL block(s) present (need 4)"
   else
-    ((l7 += 2)); warn "reports/answers.md: filled but SQL blocks missing"
+    l7=$((l7 + 2)); warn "reports/answers.md: filled but SQL blocks missing"
   fi
 else
   fail "reports/answers.md: empty or still contains TODO stubs"
@@ -268,14 +268,14 @@ fi
 if file_is_filled "$ai"; then
   chars=$(wc -c < "$ai" | tr -d ' ')
   if [[ "$chars" -ge 800 ]]; then
-    ((l7 += 5)); pass "AI_ASSIST.md: filled (${chars} chars)"
+    l7=$((l7 + 5)); pass "AI_ASSIST.md: filled (${chars} chars)"
   else
-    ((l7 += 2)); warn "AI_ASSIST.md: present but brief (${chars} chars -- target 800+)"
+    l7=$((l7 + 2)); warn "AI_ASSIST.md: present but brief (${chars} chars -- target 800+)"
   fi
 else
   fail "AI_ASSIST.md: empty or still contains TODO stubs"
 fi
-((score += l7))
+score=$((score + l7))
 pass "Level 7: business answers + AI log ($l7/10 pts)"
 
 # ── Final ─────────────────────────────────────────────────────────────────────
