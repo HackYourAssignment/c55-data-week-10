@@ -75,3 +75,4 @@ Passing score: 60/100. CI runs the same script on your PR, plus a `dbt parse` ch
 ## Submitting
 
 Follow the Submission section of the assignment chapter: branch `week10/your-name`, commit, push, open a PR, and paste your `dbt build` summary line in the PR description.
+<!-- CI verification: safe to close/delete, no content change -->
