@@ -2,11 +2,15 @@ version: 2
 
 models:
   - name: stg_zones
-    description: "TODO: state the grain and what source this reads from"
+    description: "Staging model with one row per TLC taxi zone, built from nyc_taxi.raw_zones."
     columns:
       - name: location_id
-        description: "TODO"
-        # TODO: Task 5 -- this column is the join key. Which two generic tests
-        # guarantee a clean one-to-many join from stg_trips?
+        description: "Unique TLC zone identifier. Used as the join key from trips to zones."
+        data_tests:
+          - not_null
+          - unique
+
       - name: borough
-        description: "TODO"
+        description: "Borough or zone label for the TLC location, such as Manhattan, Brooklyn, Queens, Bronx, Staten Island, EWR, Unknown, or NaN."
+        data_tests:
+          - not_null

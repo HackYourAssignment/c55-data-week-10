@@ -1,9 +1,9 @@
-name: 'nyc_taxi_borough_daily'
-version: '1.0.0'
+name: "nyc_taxi_borough_daily"
+version: "1.0.0"
 config-version: 2
 
 # This project connects to the profile of the same name in profiles.yml.
-profile: 'nyc_taxi_borough_daily'
+profile: "nyc_taxi_borough_daily"
 
 model-paths: ["models"]
 macro-paths: ["macros"]
