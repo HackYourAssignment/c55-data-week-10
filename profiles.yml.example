@@ -8,8 +8,9 @@ nyc_taxi_borough_daily:
       user: "{{ env_var('PG_USER') }}"
       password: "{{ env_var('PG_PASSWORD') }}"
       dbname: "{{ env_var('PG_DBNAME', 'postgres') }}"
-      schema: "dev_<your_name>"   # TODO: replace <your_name> with your first name (the schema you already own)
+      schema: "dev_bader"   
       threads: 1
+      sslmode: require
 
 # Copy this file to profiles.yml (same directory), fill in your name, and ensure
 # PG_HOST, PG_USER, PG_PASSWORD, and PG_DBNAME are set in your environment.

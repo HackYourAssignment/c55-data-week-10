@@ -8,11 +8,17 @@ Queries run against `dev_<your_name>.fct_daily_borough_stats`.
 
 ```sql
 -- TODO: query fct_daily_borough_stats grouped by pickup_borough, sum total_fare, order DESC
+select
+pickup_borough,
+SUM(total_fare) as total_fares
+from dev_bader.fct_daily_borough_stats
+group by pickup_borough 
+order by total_fares desc
 ```
 
-**Result:** TODO
+**Result:** Manhatten 493955.62
 
-**Interpretation:** TODO (one sentence)
+**Interpretation:** highest total revenue per borough is manhatten
 
 ---
 
@@ -22,11 +28,18 @@ Queries run against `dev_<your_name>.fct_daily_borough_stats`.
 
 ```sql
 -- TODO: query fct_daily_borough_stats grouped by pickup_date, sum trip_count, order DESC LIMIT 1
+select
+pickup_date,
+SUM(trip_count) as total_trips
+from dev_bader.fct_daily_borough_stats
+group by pickup_date
+order by total_trips  desc
+limit 1
 ```
 
-**Result:** TODO
+**Result:** 17-01-2024
 
-**Interpretation:** TODO (one sentence)
+**Interpretation:** highest trips count day is 17-01-2024
 
 ---
 
@@ -35,12 +48,15 @@ Queries run against `dev_<your_name>.fct_daily_borough_stats`.
 **SQL:**
 
 ```sql
--- TODO: query fct_daily_borough_stats order by avg_tip_pct DESC LIMIT 5
+select *
+from dev_bader.fct_daily_borough_stats
+order by avg_tip_pct desc
+limit 5
 ```
 
-**Result:** TODO
+**Result:** unknown borough
 
-**Interpretation:** TODO — note whether any avg_tip_pct > 1 rows appear and what causes them
+**Interpretation:** shows highest average tip precentages per borough/date. any average tips precentages above 1 do show, because we didnt add where tip_pct > 1 when building mart and we used a warn assert test instead which keeps them in the data
 
 ---
 
@@ -50,8 +66,14 @@ Queries run against `dev_<your_name>.fct_daily_borough_stats`.
 
 ```sql
 -- TODO: use percentile_cont(0.5) WITHIN GROUP (ORDER BY trip_count) filtered by borough
+SELECT 
+    pickup_borough,
+    percentile_cont(0.5) WITHIN GROUP (ORDER BY trip_count) AS median_daily
+FROM dev_bader.fct_daily_borough_stats
+WHERE pickup_borough IN ('Manhattan', 'Brooklyn')
+GROUP BY pickup_borough;
 ```
 
-**Result:** TODO
+**Result:** 248 for brooklyn and 1169.5 for manhatten
 
-**Interpretation:** TODO (one sentence on the ratio)
+**Interpretation:** manhatten has almost 4.7 times the trip count volume as brooklyn

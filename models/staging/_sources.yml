@@ -2,9 +2,9 @@ version: 2
 
 sources:
   - name: nyc_taxi
-    schema: nyc_taxi     # TODO: confirm this matches the schema where raw_trips and raw_zones live
+    schema: nyc_taxi     
     tables:
       - name: raw_trips
-        description: "TODO: one sentence on what this table contains and its grain"
+        description: "One row per green taxi trip for January 2024 (~57K rows)."
       - name: raw_zones
-        description: "TODO: one sentence on what this table contains"
+        description: "NYC taxi zone lookup (265 rows mapping location IDs to boroughs)."
